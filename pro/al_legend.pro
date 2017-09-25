@@ -402,9 +402,16 @@ if n_elements(horizontal) eq 0 then $              ; D=VERTICAL
  setdefaultvalue, charthick, !p.charthick
  if charsize eq 0 then charsize = 1
  setdefaultvalue, number, 1
-; Default color is opposite the background color
- case N_elements(colorsi) of 
- 0: colors = replicate('opposite',n)    
+; Default color is opposite the background color, except for histograms;
+; follow the lead of cghistoplot
+ case N_elements(colorsi) of
+ 0: begin
+   colors = replicate('opposite',n)
+   i_hists = where(psym eq 10, n_hists)
+   if (n_hists ne 0) then begin
+     colors[i_hists] = 'indian red' ; default of cghistoplot
+   endif
+ end
  1: colors = replicate(colorsi,n)
  else: colors = colorsi
  endcase 
@@ -442,7 +449,7 @@ endif
 
 ; Set default polycolor -- needed if psym=10
 case N_elements(polycolor) of
-0:    polycolor = replicate('opposite',n)
+0:    polycolor = replicate('background',n)
 1:    polycolor = replicate(polycolor,n)
 else: ;polycolor = polycolori
 endcase
