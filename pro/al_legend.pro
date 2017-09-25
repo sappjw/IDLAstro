@@ -266,6 +266,7 @@
 ;       Implement histogram filling.  J. Sapp  Aug 2015.
 ;       Only set polycolor if using polygon filling W. Landsman Sep 2016
 ;       Set default polycolor in case psym=10.  J. Sapp  Sep 2017
+;       Fix histogram symbol positioning.  J. Sapp  Sep 2017
 ;       
 ;-
 pro al_legend, items, BOTTOM_LEGEND=bottom, BOX = box, CENTER_LEGEND=center, $
@@ -483,7 +484,7 @@ if vertical then begin                          ; CALC OFFSET FOR TEXT START
   for i = 0,n-1 do begin
     if (psym[i] eq 0) and (vectorfont[i] eq '') then num = (number + 1) > 3 else num = number
     if (psym[i] lt 0) || (psym[i] eq 10) then num = number > 2       ; TO SHOW CONNECTING LINE
-    if psym[i] eq 0 then expand = linsize else expand = 2
+    if ((psym[i] eq 0) || (psym[i] eq 10)) then expand = linsize else expand = 2
     thisxt = (expand*pspacing*(num-1)*xspacing)
     if ltor then xt = thisxt > xt else xt = thisxt < xt
     endfor
@@ -558,7 +559,7 @@ for iclr = 0,clear do begin
   num = number
   if (psym[i] eq 0) && (vectorfont[i] eq '') then num = (number + 1) > 3 
   if (psym[i] lt 0) || (psym[i] eq 10) then num = number > 2         ; TO SHOW CONNECTING LINE
-  if psym[i] eq 0 then expand = 1 else expand = 2
+  if (psym[i] eq 0) || (psym[i] eq 10) then expand = 1 else expand = 2
   xp = x + expand*pspacing*indgen(num)*xspacing
   if (psym[i] gt 0) && (num eq 1) && vertical then xp = x + xt/2.
   yp = y + intarr(num)
@@ -588,6 +589,10 @@ for iclr = 0,clear do begin
        thick=thick[i]
     endif $
     else begin
+     ; Scale bar by linsize
+     barwidth = (xp[1] - xp[0]) * linsize
+     xp[1] = xp[0] + barwidth
+
      xp = [xp[0], xp[0], xp[1], xp[1], xp[0]]
      if (yp[0] eq yp[1]) then begin
       yp[0] -= (yspacing / 4.)
